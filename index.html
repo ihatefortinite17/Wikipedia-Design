@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wikipedia CDN Library</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Lato, Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #202122;
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+        }
+
+        .mw-page-container {
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+            border: 0;
+            background-color: #fff;
+        }
+
+        .mw-wiki-logo {
+            display: block;
+            margin: 0 auto;
+            width: 160px;
+            height: 160px;
+        }
+
+        .vector-header-container {
+            max-width: 99.75em;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .vector-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #a2a9b1;
+        }
+
+        .vector-main-menu {
+            display: flex;
+            align-items: center;
+            height: 3.125rem;
+        }
+
+        .vector-main-menu-action {
+            display: flex;
+            align-items: center;
+            margin-right: 0.5rem;
+        }
+
+        .vector-main-menu-action a {
+            color: #36c;
+            text-decoration: none;
+        }
+
+        .vector-search-box {
+            position: relative;
+            flex-grow: 1;
+            max-width: 35.71428571em;
+        }
+
+        .vector-search-box-input {
+            width: 100%;
+            height: 2.28571429em;
+            padding: 0 2.5em 0 0.5em;
+            border: 1px solid #a2a9b1;
+            border-radius: 2px;
+            font-size: 0.875em;
+            box-sizing: border-box;
+        }
+
+        .search-button {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 2.5em;
+            height: 100%;
+            background: transparent;
+            border: 0;
+            cursor: pointer;
+        }
+
+        .vector-user-links {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+        }
+
+        .vector-user-links a {
+            color: #36c;
+            text-decoration: none;
+            margin-left: 0.5rem;
+            font-size: 0.875em;
+        }
+
+        .vector-tabs {
+            border-bottom: 1px solid #a2a9b1;
+        }
+
+        .vector-menu-tabs {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .vector-menu-tabs li {
+            margin: 0;
+        }
+
+        .vector-menu-tabs a {
+            display: block;
+            padding: 0.625rem 0.75rem;
+            color: #36c;
+            text-decoration: none;
+            font-size: 0.875em;
+            border-bottom: 2px solid transparent;
+        }
+
+        .vector-menu-tabs .selected a {
+            color: #202122;
+            border-bottom-color: #36c;
+            font-weight: bold;
+        }
+
+        .mw-body {
+            margin: 0 auto;
+            max-width: 99.75em;
+            padding: 1rem;
+        }
+
+        .mw-body-content {
+            max-width: 60em;
+            margin: 0 auto;
+        }
+
+        .firstHeading {
+            border-bottom: 1px solid #a2a9b1;
+            padding-bottom: 0.25em;
+            margin-bottom: 0.5em;
+            font-family: 'Linux Libertine', 'Georgia', 'Times', serif;
+            font-weight: normal;
+            font-size: 1.8em;
+        }
+
+        .mw-parser-output {
+            font-size: 0.875em;
+            line-height: 1.6;
+        }
+
+        .mw-parser-output p {
+            margin: 0.5em 0;
+        }
+
+        .infobox {
+            border: 1px solid #a2a9b1;
+            border-spacing: 3px;
+            background-color: #f8f9fa;
+            color: black;
+            margin: 0.5em 0 0.5em 1em;
+            padding: 0.2em;
+            float: right;
+            clear: right;
+            font-size: 88%;
+            line-height: 1.5em;
+            width: 22em;
+        }
+
+        .infobox caption {
+            font-size: 125%;
+            font-weight: bold;
+            padding: 0.2em;
+            text-align: center;
+        }
+
+        .infobox th, .infobox td {
+            vertical-align: top;
+            text-align: left;
+            padding: 0.2em 0.4em;
+        }
+
+        .infobox tr:nth-child(odd) {
+            background-color: #f8f9fa;
+        }
+
+        .infobox tr:nth-child(even) {
+            background-color: white;
+        }
+
+        .toc {
+            display: table;
+            padding: 7px;
+            border: 1px solid #a2a9b1;
+            background-color: #f8f9fa;
+            font-size: 95%;
+        }
+
+        .toc h2 {
+            display: inline;
+            border: 0;
+            padding: 0;
+            font-size: 100%;
+            font-weight: bold;
+        }
+
+        .toc ul {
+            list-style-type: none;
+            list-style-image: none;
+            margin-left: 0;
+            padding: 0;
+            text-align: left;
+        }
+
+        .toc ul ul {
+            margin: 0 0 0 2em;
+        }
+
+        .tocnumber {
+            color: #202122;
+        }
+
+        .toctext {
+            color: #202122;
+            text-decoration: none;
+        }
+
+        .mw-editsection {
+            font-size: small;
+            font-weight: normal;
+            margin-left: 1em;
+        }
+
+        .mw-editsection a {
+            color: #36c;
+            text-decoration: none;
+        }
+
+        .reference {
+            font-size: 90%;
+        }
+
+        .reflist {
+            font-size: 90%;
+            margin-bottom: 0.5em;
+            list-style-type: decimal;
+        }
+
+        .vector-footer {
+            background-color: #f8f9fa;
+            border-top: 1px solid #a2a9b1;
+            padding: 0.75rem 1rem;
+            margin-top: 1rem;
+        }
+
+        .vector-footer ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .vector-footer li {
+            margin-right: 1.5em;
+            margin-bottom: 0.5em;
+        }
+
+        .vector-footer a {
+            color: #36c;
+            text-decoration: none;
+            font-size: 0.75em;
+        }
+
+        .mw-indicators {
+            float: right;
+            margin: 0 0 0.5em 0.5em;
+        }
+
+        .hatnote {
+            font-style: italic;
+            padding: 0.5em 1em;
+            margin-bottom: 0.5em;
+            background-color: #f8f9fa;
+            border: 1px solid #a2a9b1;
+            font-size: 90%;
+        }
+
+        .thumb {
+            background-color: #f8f9fa;
+            border: 1px solid #c8ccd1;
+            padding: 3px;
+            margin: 0.5em;
+            float: right;
+            clear: right;
+        }
+
+        .thumbinner {
+            border: 1px solid #c8ccd1;
+            padding: 3px;
+            background-color: #f8f9fa;
+            font-size: 94%;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .thumbcaption {
+            text-align: left;
+            line-height: 1.4em;
+            padding: 3px 3px 0 0;
+        }
+
+        .navbox {
+            border: 1px solid #a2a9b1;
+            width: 100%;
+            margin: 1em auto 0;
+            clear: both;
+            font-size: 88%;
+            text-align: center;
+            padding: 1px;
+            background-color: #f8f9fa;
+        }
+
+        .navbox th {
+            background-color: #ccf;
+            padding: 0 0.5em;
+        }
+
+        .vector-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 15em;
+            background-color: #f6f6f6;
+            border-right: 1px solid #a2a9b1;
+            padding: 1rem 0;
+            overflow-y: auto;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .vector-sidebar.open {
+            transform: translateX(0);
+        }
+
+        .vector-sidebar .logo {
+            text-align: center;
+            padding: 1rem;
+            border-bottom: 1px solid #a2a9b1;
+        }
+
+        .vector-sidebar nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .vector-sidebar nav li {
+            margin: 0;
+        }
+
+        .vector-sidebar nav a {
+            display: block;
+            padding: 0.5rem 1rem;
+            color: #36c;
+            text-decoration: none;
+            border-bottom: 1px solid #eaeaea;
+        }
+
+        .vector-sidebar nav a:hover {
+            background-color: #eaecf0;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .overlay.open {
+            display: block;
+        }
+
+        @media screen and (min-width: 1000px) {
+            .vector-body {
+                display: flex;
+            }
+            .vector-sidebar {
+                position: static;
+                transform: translateX(0);
+                width: 12em;
+                border-right: 1px solid #a2a9b1;
+            }
+            .mw-body {
+                flex: 1;
+                margin-left: 0;
+            }
+            .overlay {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay" id="overlay"></div>
+
+    <div class="vector-header-container">
+        <header class="vector-header">
+            <div class="vector-main-menu">
+                <div class="vector-main-menu-action">
+                    <button id="sidebar-toggle" style="background: none; border: none; cursor: pointer; padding: 0.5rem;">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M1 3h18v2H1zm0 6h18v2H1zm0 6h18v2H1z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="vector-search-box">
+                    <input type="search" class="vector-search-box-input" placeholder="Search Wikipedia" aria-label="Search Wikipedia">
+                    <button class="search-button" aria-label="Search">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M12.9 14.32a8 8 0 1 1 1.41-1.41l5.35 5.33-1.42 1.42-5.33-5.34zM8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="vector-user-links">
+                    <a href="#">Not logged in</a>
+                    <a href="#">Talk</a>
+                    <a href="#">Contributions</a>
+                    <a href="#">Create account</a>
+                    <a href="#">Log in</a>
+                </div>
+            </div>
+            <nav class="vector-tabs">
+                <ul class="vector-menu-tabs">
+                    <li class="selected"><a href="#">Article</a></li>
+                    <li><a href="#">Talk</a></li>
+                </ul>
+            </nav>
+        </header>
+    </div>
+
+    <div class="vector-body">
+        <aside class="vector-sidebar" id="sidebar">
+            <div class="logo">
+                <svg width="100" height="100" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" fill="#fff" stroke="#000" stroke-width="2"/>
+                    <text x="50" y="60" text-anchor="middle" font-size="40" font-weight="bold">W</text>
+                </svg>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#">Main page</a></li>
+                    <li><a href="#">Contents</a></li>
+                    <li><a href="#">Current events</a></li>
+                    <li><a href="#">Random article</a></li>
+                    <li><a href="#">About Wikipedia</a></li>
+                    <li><a href="#">Contact us</a></li>
+                    <li><a href="#">Donate</a></li>
+                </ul>
+                <ul>
+                    <li><a href="#">Help</a></li>
+                    <li><a href="#">Learn to edit</a></li>
+                    <li><a href="#">Community portal</a></li>
+                    <li><a href="#">Recent changes</a></li>
+                    <li><a href="#">Upload file</a></li>
+                </ul>
+                <ul>
+                    <li><a href="#">What links here</a></li>
+                    <li><a href="#">Related changes</a></li>
+                    <li><a href="#">Special pages</a></li>
+                    <li><a href="#">Permanent link</a></li>
+                    <li><a href="#">Page information</a></li>
+                    <li><a href="#">Cite this page</a></li>
+                    <li><a href="#">Wikidata item</a></li>
+                </ul>
+                <ul>
+                    <li><a href="#">Create a book</a></li>
+                    <li><a href="#">Download as PDF</a></li>
+                    <li><a href="#">Printable version</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="mw-body">
+            <div class="mw-body-content">
+                <h1 id="firstHeading" class="firstHeading">Sample Article Title</h1>
+                <div class="mw-indicators">
+                    <div class="mw-indicator" id="mw-indicator-featured-star">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="#f8f9fa">
+                            <path d="M10 1l3 6 6 .75-4.12 4.62L16 19l-6-3-6 3 1.13-6.63L1 7.75 7 7z" fill="#36c"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mw-parser-output">
+                    <div class="hatnote">This is a sample article demonstrating the Wikipedia interface design.</div>
+                    
+                    <table class="infobox">
+                        <caption>Sample Infobox</caption>
+                        <tbody>
+                            <tr>
+                                <th colspan="2" style="text-align:center;background-color:#ccf;">Sample Data</th>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="text-align:center">
+                                    <div class="thumb">
+                                        <div class="thumbinner">
+                                            <div style="width:220px;height:165px;background:#f8f9fa;display:flex;align-items:center;justify-content:center;">
+                                                Sample Image
+                                            </div>
+                                            <div class="thumbcaption">Sample caption text</div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Field 1</th>
+                                <td>Value 1</td>
+                            </tr>
+                            <tr>
+                                <th>Field 2</th>
+                                <td>Value 2</td>
+                            </tr>
+                            <tr>
+                                <th>Field 3</th>
+                                <td>Value 3</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div id="toc" class="toc">
+                        <div class="toctitle">
+                            <h2>Contents</h2>
+                        </div>
+                        <ul>
+                            <li><a href="#section1"><span class="tocnumber">1</span> <span class="toctext">First section</span></a></li>
+                            <li><a href="#section2"><span class="tocnumber">2</span> <span class="toctext">Second section</span></a>
+                                <ul>
+                                    <li><a href="#subsection2-1"><span class="tocnumber">2.1</span> <span class="toctext">Subsection</span></a></li>
+                                </ul>
+                            </li>
+                            <li><a href="#section3"><span class="tocnumber">3</span> <span class="toctext">Third section</span></a></li>
+                        </ul>
+                    </div>
+
+                    <h2><span class="mw-headline" id="section1">First section</span></h2>
+                    <p>This is a sample paragraph demonstrating the Wikipedia text style and formatting. The interface replicates the exact look and feel of Wikipedia without pulling live data.</p>
+                    
+                    <h2><span class="mw-headline" id="section2">Second section</span></h2>
+                    <p>Another sample paragraph showing how text appears in the Wikipedia layout. The design includes all the typical Wikipedia elements like infoboxes, tables of contents, and navigation menus.</p>
+                    
+                    <h3><span class="mw-headline" id="subsection2-1">Subsection</span></h3>
+                    <p>This is a subsection with additional content. The typography and spacing match Wikipedia's exact specifications.</p>
+                    
+                    <h2><span class="mw-headline" id="section3">Third section</span></h2>
+                    <p>Final sample section showing the complete Wikipedia interface implementation. All visual elements are precisely replicated.</p>
+
+                    <div class="navbox">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <th style="background-color:#ccf;">Related Topics</th>
+                                </tr>
+                                <tr>
+                                    <td style="text-align:center">
+                                        <a href="#">Topic 1</a> • <a href="#">Topic 2</a> • <a href="#">Topic 3</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer class="vector-footer">
+        <ul>
+            <li><a href="#">Privacy policy</a></li>
+            <li><a href="#">About Wikipedia</a></li>
+            <li><a href="#">Disclaimers</a></li>
+            <li><a href="#">Contact Wikipedia</a></li>
+            <li><a href="#">Mobile view</a></li>
+            <li><a href="#">Developers</a></li>
+            <li><a href="#">Statistics</a></li>
+            <li><a href="#">Cookie statement</a></li>
+        </ul>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+
+            function toggleSidebar() {
+                sidebar.classList.toggle('open');
+                overlay.classList.toggle('open');
+            }
+
+            sidebarToggle.addEventListener('click', toggleSidebar);
+            overlay.addEventListener('click', toggleSidebar);
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 1000) {
+                    sidebar.classList.remove('open');
+                    overlay.classList.remove('open');
+                }
+            });
+        });
+
+        window.WikipediaCDN = {
+            createArticle: function(config) {
+                const {
+                    title = 'Sample Article',
+                    content = '<p>Sample content</p>',
+                    infobox = '',
+                    toc = true
+                } = config;
+
+                const titleElement = document.getElementById('firstHeading');
+                const contentElement = document.querySelector('.mw-parser-output');
+
+                if (titleElement) titleElement.textContent = title;
+                if (contentElement) contentElement.innerHTML = content;
+
+                return {
+                    updateTitle: function(newTitle) {
+                        if (titleElement) titleElement.textContent = newTitle;
+                    },
+                    updateContent: function(newContent) {
+                        if (contentElement) contentElement.innerHTML = newContent;
+                    }
+                };
+            },
+
+            setSearchHandler: function(handler) {
+                const searchInput = document.querySelector('.vector-search-box-input');
+                const searchButton = document.querySelector('.search-button');
+
+                if (searchInput && searchButton) {
+                    const executeSearch = () => {
+                        const query = searchInput.value.trim();
+                        if (query && typeof handler === 'function') {
+                            handler(query);
+                        }
+                    };
+
+                    searchInput.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') executeSearch();
+                    });
+
+                    searchButton.addEventListener('click', executeSearch);
+                }
+            },
+
+            toggleSidebar: function() {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('overlay');
+                
+                if (sidebar && overlay) {
+                    sidebar.classList.toggle('open');
+                    overlay.classList.toggle('open');
+                }
+            }
+        };
+    </script>
+</body>
+</html>
